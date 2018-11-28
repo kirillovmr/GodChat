@@ -14,18 +14,17 @@ app.use(express.static(publicPath));
 
 let connectedUsers = {};
 
-function showConnected() {
-  console.log('Connected users:', Object.keys(connectedUsers).length);
+function onlineChange() {
+  const online = Object.keys(connectedUsers).length;
+  io.emit('online', online);
 };
 
 io.on('connection', (socket) => {
   const { id } = socket;
   connectedUsers[id] = socket;
-  showConnected();
+  onlineChange();
   
   socket.on('sendMsg', (msg) => {
-    console.log('Received message:', msg);
-
     let sends = 0;
     for (const recieverId in connectedUsers) {
       if(connectedUsers.hasOwnProperty(recieverId)) {
@@ -42,7 +41,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     delete connectedUsers[socket.id];
-    showConnected();
+    onlineChange();
   });
 });
 

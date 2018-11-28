@@ -25,18 +25,7 @@ io.on('connection', (socket) => {
   onlineChange();
   
   socket.on('sendMsg', (msg) => {
-    let sends = 0;
-    for (const recieverId in connectedUsers) {
-      if(connectedUsers.hasOwnProperty(recieverId)) {
-        // Not sending msg to sender
-        if (id === recieverId) {
-          continue;
-        }
-        connectedUsers[recieverId].emit('newMsg', msg);
-        sends ++;
-      };
-    };
-    console.log(`Sended to ${sends} users.`);
+    socket.broadcast.emit('newMsg', msg);
   });
 
   socket.on('disconnect', () => {

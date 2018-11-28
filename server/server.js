@@ -12,13 +12,38 @@ const io = socketIO(server);
 
 app.use(express.static(publicPath));
 
-io.on('connection', (socket) => {
-  console.log('New user connected!');
+let connectedUsers = {};
 
-  socket.on('disconnect', (socket) => {
-    console.log('User disconnected');
+function showConnected() {
+  console.log('Connected users:', Object.keys(connectedUsers).length);
+};
+
+io.on('connection', (socket) => {
+  const { id } = socket;
+  connectedUsers[id] = socket;
+  showConnected();
+  
+  socket.on('sendMsg', (msg) => {
+    console.log('Received message:', msg);
+
+    let sends = 0;
+    for (const recieverId in connectedUsers) {
+      if(connectedUsers.hasOwnProperty(recieverId)) {
+        // Not sending msg to sender
+        if (id === recieverId) {
+          continue;
+        }
+        connectedUsers[recieverId].emit('newMsg', msg);
+        sends ++;
+      };
+    };
+    console.log(`Sended to ${sends} users.`);
   });
 
+  socket.on('disconnect', () => {
+    delete connectedUsers[socket.id];
+    showConnected();
+  });
 });
 
 server.listen(port, () => {

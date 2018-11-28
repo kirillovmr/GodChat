@@ -8,5 +8,20 @@
 </head>
 <body>
   <p>Hey!</p>
+
+
+  <script src="./socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    
+    socket.on('connect', () => {
+      console.log('Successfully connected to server');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from server');
+    })
+  </script>
+
 </body>
 </html>
